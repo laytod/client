@@ -4,10 +4,6 @@ from logging.handlers import RotatingFileHandler
 from flask import Flask
 app = Flask(__name__)
 
-# create LoginManager for Flask-Login
-login_manager = LoginManager()
-login_manager.init_app(app)
-
 # Sessions variables are stored client side, on the users browser
 # the content of the variables is encrypted, so users can't
 # actually see it. They could edit it, but again, as the content
