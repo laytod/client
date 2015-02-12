@@ -27,18 +27,19 @@ def get_status():
    pindata = dict(pins=pins)
    return jsonify(pindata)
 
-@app.route("/toggle_pin/<pin>")
-def toggle_pin(pin=None):
+@app.route("/toggle_pin/<toggle_pin>")
+def toggle_pin(toggle_pin=None):
    try:
-      status = get_status()
+      for pin in pins:
+         pins[pin]['state'] = GPIO.input(pin)
 
-      if status[pin] == 0:
-         GPIO.output(pin, GPIO.HIGH)
-         status[pin] = 1
+      toggle_pin = int(toggle_pin)
 
-      if status[pin] == 1:
-         GPIO.output(pin, GPIO.LOW)
-         status[pin] = 0
+      if pins[toggle_pin]['state'] == 0:
+         GPIO.output(toggle_pin, GPIO.HIGH)
+
+      if pins[toggle_pin]['state'] == 1:
+         GPIO.output(toggle_pin, GPIO.LOW)
 
       return jsonify(dict(result=True))
    except Exception as e:
