@@ -1,13 +1,8 @@
 import logging
 from logging.handlers import RotatingFileHandler
-from sqlobject import *
-from flask.ext.login import LoginManager
 
 from flask import Flask
 app = Flask(__name__)
-
-# create database connection
-sqlhub.processConnection = connectionForURI('mysql://root:root@localhost/flask')
 
 # create LoginManager for Flask-Login
 login_manager = LoginManager()
@@ -27,7 +22,7 @@ app.secret_key = 'super secret key'
 # will be made
 logger = logging.getLogger('cameraPi')
 logger.setLevel(logging.DEBUG)
-handler = RotatingFileHandler('/home/laytod/flask/logs/example.log',
+handler = RotatingFileHandler('/home/pi/flask/logs/example.log',
 								maxBytes=10000,
 								backupCount=1)
 formatter = logging.Formatter('[%(asctime)s] [%(levelname)s] %(message)s',
