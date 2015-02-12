@@ -4,10 +4,6 @@ import RPi.GPIO as GPIO
 from flask import jsonify, request, redirect
 from cameraPi import app, logger
 
-# give alias to logger
-# logger = app.logger
-
-
 GPIO.setmode(GPIO.BCM)
 ## GPIO.cleanup()
 GPIO.setwarnings(False)
@@ -22,8 +18,8 @@ for pin in pins:
    GPIO.output(pin, GPIO.LOW)
 
 
-@app.route("/get_pin_status")
-def index():
+@app.route("/get_status")
+def get_status():
    # For each pin, read the pin state and store it in the pins dictionary:
    for pin in pins:
       pins[pin]['state'] = GPIO.input(pin)
@@ -31,6 +27,23 @@ def index():
    pindata = dict(pins=pins)
    return jsonify(pindata)
 
+@app.route("/toggle_pin/<pin>")
+def toggle_pin(pin=None):
+   try:
+      status = get_status()
+
+      if status[pin] == 0:
+         GPIO.output(pin, GPIO.HIGH)
+         status[pin] = 1
+
+      if status[pin] == 1:
+         GPIO.output(pin, GPIO.LOW)
+         status[pin] = 0
+
+      return jsonify(dict(result=True))
+   except Exception as e:
+      logger.exception(e)
+      return jsonify(dict(result=False))
 
 # The function below is executed when someone requests a URL with the pin number and action in it:
 # @app.route("/changePin")
