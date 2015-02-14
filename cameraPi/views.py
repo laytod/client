@@ -8,9 +8,10 @@ GPIO.setmode(GPIO.BCM)
 ## GPIO.cleanup()
 GPIO.setwarnings(False)
 
-pins = { 17 : {'name': 'green', 'state': GPIO.LOW},
-         22 : {'name': 'yellow', 'state': GPIO.LOW},
-         23 : {'name': 'red', 'state': GPIO.LOW} }
+pins = { 17 : {'name': 'green'},
+         22 : {'name': 'yellow'},
+         23 : {'name': 'red'}
+}
 
 for pin in pins:
    GPIO.setup(pin,GPIO.OUT)
@@ -18,12 +19,8 @@ for pin in pins:
 
 @app.route("/pin_status")
 def pin_status():
-   # For each pin, read the pin state and store it in the pins dictionary:
-   for pin in pins:
-      pins[pin]['state'] = GPIO.input(pin)
-
-   data = dict(pins=pins)
-   return jsonify(data)
+   status = get_status(pins)
+   return jsonify(status)
 
 
 @app.route("/toggle_pin/<pin>")
@@ -39,10 +36,19 @@ def toggle_pin(pin=None):
          GPIO.output(pin, GPIO.LOW)
          logger.info('Turned pin {pin} off'.format(pin=pin))
 
-      return jsonify(dict(result=True))
+      status = get_status(pins)
+
+      return jsonify(status))
    except Exception as e:
       logger.exception(e)
-      return jsonify(dict(result=False))
+
+
+def get_status(pins):
+   status = dict(pins)
+   for pin in pins:
+      status[pin].update(state=GPIO.input(pin))
+
+   return status
 
 
 def toggle_stream():
