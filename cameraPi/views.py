@@ -1,7 +1,7 @@
 import datetime
 import RPi.GPIO as GPIO
 
-from flask import jsonify, request, redirect
+from flask import jsonify, request
 from cameraPi import app, logger
 
 GPIO.setmode(GPIO.BCM)
@@ -13,9 +13,19 @@ pins = { 17 : {'name': 'green'},
          23 : {'name': 'red'}
 }
 
+# start out with all pins off
 for pin in pins:
    GPIO.setup(pin,GPIO.OUT)
    GPIO.output(pin, GPIO.LOW)
+
+
+def get_status(pins):
+   status = dict(pins)
+   for pin in pins:
+      status[pin].update(state=GPIO.input(pin))
+
+   return status
+
 
 @app.route("/pin_status")
 def pin_status():
@@ -38,17 +48,10 @@ def toggle_pin(pin=None):
 
       status = get_status(pins)
 
-      return jsonify(status))
+      return jsonify(status)
    except Exception as e:
       logger.exception(e)
-
-
-def get_status(pins):
-   status = dict(pins)
-   for pin in pins:
-      status[pin].update(state=GPIO.input(pin))
-
-   return status
+      raise
 
 
 def toggle_stream():
