@@ -1,4 +1,6 @@
 import logging
+import xmlrpclib
+import supervisor.xmlrpc
 from logging.handlers import RotatingFileHandler
 
 from flask import Flask
@@ -25,6 +27,18 @@ formatter = logging.Formatter('[%(asctime)s] [%(levelname)s] %(message)s',
 								datefmt='%Y-%m-%d %H:%M:%S')
 handler.setFormatter(formatter)
 logger.addHandler(handler)
+
+
+# Setup xmlrpc control of supervisor
+supervisor_xmlrpc = xmlrpclib.ServerProxy(
+	'http://127.0.0.1',
+	transport=supervisor.xmlrpc.SupervisorTransport(
+		None,
+		None,
+		'unix:///run/supervisor.sock'
+	)
+)
+
 
 
 import cameraPi.views

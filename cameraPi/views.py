@@ -2,7 +2,7 @@ import datetime
 import RPi.GPIO as GPIO
 
 from flask import jsonify, request
-from cameraPi import app, logger
+from cameraPi import app, logger, supervisor_xmlrpc
 
 GPIO.setmode(GPIO.BCM)
 ## GPIO.cleanup()
@@ -54,5 +54,40 @@ def toggle_pin(pin=None):
       raise
 
 
-def toggle_stream():
-   pass
+def get_supervisor_process_info(name='all'):
+   if name == 'all':
+      process_info = supervisor_xmlrpc.supervisor.getAllProcessInfo()
+   else:
+      process_info = supervisor_xmlrpc.supervisor.getProcessInfo(name)
+
+   return process_info
+
+
+@app.route('/process_info', defaults={'name': 'all'})
+@app.route('/process_info/<name>')
+def process_info(name='all'):
+   return jsonify(get_supervisor_process_info(name))
+
+
+def start_supervisor_process(name):
+   return supervisor_xmlrpc.supervisor.startProcess(name)
+
+def stop_supervisor_process(name):
+   return supervisor_xmlrpc.supervisor.stopProcess(name)
+
+
+@app.route('/toggle_video')
+def toggle_video():
+   processes = ['cam', 'mjpg']
+   for process in processes:
+      process_info = get_supervisor_process_info(process)
+
+      if process_info['state'] != 0:
+         result = stop_supervisor_process(process)
+      else:
+         result = start_supervisor_process(process)
+
+   return jsonify({
+      'result': result,
+      'info': get_supervisor_process_info(process)
+   })
