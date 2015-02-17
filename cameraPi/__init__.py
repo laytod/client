@@ -1,4 +1,5 @@
 import logging
+import xmlrpclib
 import supervisor.xmlrpc
 from logging.handlers import RotatingFileHandler
 
@@ -29,7 +30,7 @@ logger.addHandler(handler)
 
 
 # Setup xmlrpc control of supervisor
-supervisor_xmlrpc = ServerProxy(
+supervisor_xmlrpc = xmlrpclib.ServerProxy(
 	'http://127.0.0.1',
 	transport=supervisor.xmlrpc.SupervisorTransport(
 		None,
