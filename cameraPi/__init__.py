@@ -29,7 +29,7 @@ logger.addHandler(handler)
 
 
 # Setup xmlrpc control of supervisor
-supervisor_xmlrpc = xmlrpclib.ServerProxy(
+supervisor_xmlrpc = ServerProxy(
 	'http://127.0.0.1',
 	transport=supervisor.xmlrpc.SupervisorTransport(
 		None,
