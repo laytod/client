@@ -1,5 +1,4 @@
 import logging
-import xmlrpclib
 import supervisor.xmlrpc
 from logging.handlers import RotatingFileHandler
 
