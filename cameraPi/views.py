@@ -9,8 +9,8 @@ GPIO.setmode(GPIO.BCM)
 GPIO.setwarnings(False)
 
 pins = { 17 : {'name': 'green'},
-         22 : {'name': 'yellow'},
-         23 : {'name': 'red'}
+         22 : {'name': 'red'},
+         23 : {'name': 'night vision'}
 }
 
 # start out with all pins off
