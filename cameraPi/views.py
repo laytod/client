@@ -1,7 +1,7 @@
 import datetime
 import RPi.GPIO as GPIO
 
-from flask import jsonify, request
+from flask import jsonify, request, Response
 from cameraPi import app, logger, supervisor_xmlrpc
 
 GPIO.setmode(GPIO.BCM)
@@ -91,3 +91,15 @@ def toggle_video():
       'result': result,
       'info': get_supervisor_process_info(process)
    })
+
+
+def gen(camera):
+    while True:
+        frame = camera.get_frame()
+        yield (b'--frame\r\n'
+               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+
+@app.route('/video_feed')
+def video_feed():
+    return Response(gen(Camera()),
+                    mimetype='multipart/x-mixed-replace; boundary=frame')
