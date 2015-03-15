@@ -20,7 +20,7 @@ app.secret_key = 'super secret key'
 # will be made
 logger = logging.getLogger('cameraPi')
 logger.setLevel(logging.DEBUG)
-handler = RotatingFileHandler('/home/pi/flask/logs/server.log',
+handler = RotatingFileHandler('/home/h0gtrap/flask/logs/server.log',
 								maxBytes=10000,
 								backupCount=1)
 formatter = logging.Formatter('[%(asctime)s] [%(levelname)s] %(message)s',

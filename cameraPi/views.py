@@ -1,30 +1,40 @@
 import datetime
-import RPi.GPIO as GPIO
+from subprocess import check_output, call
 
 from flask import jsonify, request, Response
 from cameraPi import app, logger, supervisor_xmlrpc
-
-GPIO.setmode(GPIO.BCM)
-## GPIO.cleanup()
-GPIO.setwarnings(False)
 
 pins = { 17 : {'name': 'green'},
          22 : {'name': 'red'},
          23 : {'name': 'night vision'}
 }
 
+def get_pin_status(pin):
+    return int(check_output(['gpio', '-g', 'read', str(pin)]))
+
+def toggle_gpio(pin):
+    pin_status = get_pin_status(pin)
+
+    if pin_status == 0:
+        call(['gpio', '-g', 'write', str(pin), '1'])
+        logger.info('Turned pin {pin} on'.format(pin=pin))
+    else:
+        call(['gpio', '-g', 'write', str(pin), '0'])
+        logger.info('Turned pin {pin} off'.format(pin=pin))
+
 # start out with all pins off
 for pin in pins:
-   GPIO.setup(pin,GPIO.OUT)
-   GPIO.output(pin, GPIO.LOW)
+    call(['gpio', 'export', str(pin), 'out'])
+    call(['gpio', '-g', 'write', str(pin), '0'])
 
 
 def get_status(pins):
-   status = dict(pins)
-   for pin in pins:
-      status[pin].update(state=GPIO.input(pin))
+    status = dict(pins)
+    for pin in pins:
+        pin_status = get_pin_status(pin)
+        status[pin].update(state=pin_status) 
 
-   return status
+    return status
 
 
 @app.route("/pin_status")
@@ -35,23 +45,13 @@ def pin_status():
 
 @app.route("/toggle_pin/<pin>")
 def toggle_pin(pin=None):
-   try:
-      pin = int(pin)
-      pin_status = GPIO.input(pin)
-
-      if pin_status == 0:
-         GPIO.output(pin, GPIO.HIGH)
-         logger.info('Turned pin {pin} on'.format(pin=pin))
-      elif pin_status == 1:
-         GPIO.output(pin, GPIO.LOW)
-         logger.info('Turned pin {pin} off'.format(pin=pin))
-
-      status = get_status(pins)
-
-      return jsonify(status)
-   except Exception as e:
-      logger.exception(e)
-      raise
+    try:
+        pin = int(pin)
+        toggle_gpio(pin)
+        return jsonify(get_status(pins))
+    except Exception as e:
+        logger.exception(e)
+        raise
 
 
 def get_supervisor_process_info(name='all'):
@@ -93,13 +93,13 @@ def toggle_video():
    })
 
 
-def gen(camera):
-    while True:
-        frame = camera.get_frame()
-        yield (b'--frame\r\n'
-               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
-
-@app.route('/video_feed')
-def video_feed():
-    return Response(gen(Camera()),
-                    mimetype='multipart/x-mixed-replace; boundary=frame')
+#def gen(camera):
+#    while True:
+#        frame = camera.get_frame()
+#        yield (b'--frame\r\n'
+#               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+#
+#@app.route('/video_feed')
+#def video_feed():
+#    return Response(gen(Camera()),
+#                    mimetype='multipart/x-mixed-replace; boundary=frame')
