@@ -1,10 +1,17 @@
 import logging
 import xmlrpclib
+import ConfigParser
+from os import path
 import supervisor.xmlrpc
 from logging.handlers import RotatingFileHandler
 
 from flask import Flask
 app = Flask(__name__)
+
+# parse the config
+config = ConfigParser.ConfigParser()
+config_path = path.dirname(path.dirname(path.realpath(__file__))) + '/camserv.conf'
+config.read(config_path)
 
 # Sessions variables are stored client side, on the users browser
 # the content of the variables is encrypted, so users can't
@@ -20,7 +27,7 @@ app.secret_key = 'super secret key'
 # will be made
 logger = logging.getLogger('cameraPi')
 logger.setLevel(logging.DEBUG)
-handler = RotatingFileHandler('/home/h0gtrap/flask/logs/server.log',
+handler = RotatingFileHandler(config.get('logs', 'main',
 								maxBytes=10000,
 								backupCount=1)
 formatter = logging.Formatter('[%(asctime)s] [%(levelname)s] %(message)s',

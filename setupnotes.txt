@@ -1,0 +1,57 @@
+sudo apt-get update
+sudo apt-get upgrade
+sudo apt-get dist-upgrade
+sudo raspi-config
+
+sudo apt-get install screen apache2 vim htop git autossh python-dev python-pip supervisor fail2ban libapache2-mod-wsgi imagemagick
+
+sudo pip install supervisor flask
+
+a2enmod wsgi
+
+.vimrc
+.gitconfig
+.bashrc (yellow prompt)
+.bash_aliases
+/etc/supervisord.conf
+
+# add autossh command to run on boot
+# su h0gtrap -c "autossh -M 20000 -f -N camserv -R 8080:localhost:8080 -R 8022:localhost:22 -R 8088:localhost:80"
+# /etc/rc.local
+
+# create new user and remove pi
+sudo useradd -m h0gtrap -G pi,adm,dialout,cdrom,sudo,audio,video,plugdev,games,users,netdev,input,spi,gpio
+sudo deluser -remove-home pi
+
+# make logs
+mkdir /home/h0gtrap/logs
+touch /home/h0gtrap/server.log
+touch /home/h0gtrap/cam.log
+touch /home/h0gtrap/pir.log
+
+# setup supervisor
+sudo cp /home/h0gtrap/flask/conf/*.conf /etc/supervisor/conf.d/
+alias ss="sudo supervisorctl -c /etc/supervisor/supervisord.conf "
+ss reread
+ss reload
+ss status
+
+# create supervisor group and add h0gtrap and www-data to it
+sudo groupadd supervisor
+sudo usermod -a -G supervisor h0gtrap
+sudo usermod -a -G supervisor www-data
+
+# install mjpg
+http://blog.miguelgrinberg.com/post/how-to-build-and-run-mjpg-streamer-on-the-raspberry-pi
+
+# setup wiringPi
+git clone git://git.drogon.net/wiringPi
+cd wiringPi/
+./build
+
+# enable pin 17 for non-root access
+gpio export 17 out
+
+#t urn pin 17 on and off
+gpio -g write 17 1
+gpio -g write 17 0
