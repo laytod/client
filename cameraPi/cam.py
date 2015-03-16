@@ -33,7 +33,7 @@ if __name__ == '__main__':
 
 	# write to shared memory (RAM) so we don't wear out the SD card
 	path = '/run/shm/'
-	cmd = """convert -pointsize 20 -fill black -draw "rectangle 0,450 720,480" -fill white -draw "text 430,470 '$(date)'" {path}tmp.jpg {path}image.jpg""".format(path=path)
+	cmd = """convert -pointsize 20 -fill '#0008' -draw "rectangle 0,450 720,480" -fill white -draw "text 430,470 '$(date)'" {path}tmp.jpg {path}image.jpg""".format(path=path)
 
 	# loop forever taking pictures
 	while True:
