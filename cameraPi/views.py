@@ -3,6 +3,7 @@ from subprocess import check_output, call
 
 from flask import jsonify, request, Response
 from cameraPi import app, logger, supervisor_xmlrpc
+from cameraPi.email import send_email
 
 pins = { 17 : {'name': 'green'},
          22 : {'name': 'red'},
@@ -92,6 +93,12 @@ def toggle_video():
       'info': get_supervisor_process_info(process)
    })
 
+
+@app.route('email')
+def email():
+  admins = ['laytod@gmail.com']
+  send_email(recipients=admins)
+  logger.info('Sent email to {admins}'.format(admins=admins))
 
 #def gen(camera):
 #    while True:

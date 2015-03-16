@@ -2,7 +2,6 @@ import smtplib
 import logging
 from cameraPi import app, config
 
-
 # email credentials
 username = config.get('email', 'user')
 password = config.get('email', 'pw')
@@ -18,7 +17,6 @@ def send_email( subject='No Subject',
         server.ehlo()
         server.login(username, password)
         server.sendmail(sender, recipients, 'Subject: {subject}\n\n{body}'.format(subject=subject, body=body))
-        app.logger.info('Sent Email : {recipients}'.format(recipients=recipients))
     except Exception, e:
         return e
 
