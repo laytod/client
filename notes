@@ -10,4 +10,4 @@ SSH TUNNEL
 # -N no commands will be executed from the shell over
 #    the ssh tunnel
 #
-autossh -M 20000 -f -N camserv -R 8080:localhost:8080 -R 8022:localhost:22 -R 8088:localhost:8088
+autossh -M 20000 -f -N camserv -R 8080:localhost:8080 -R 8022:localhost:22 -R 8088:localhost:80
