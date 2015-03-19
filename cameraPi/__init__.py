@@ -27,13 +27,11 @@ app.secret_key = 'super secret key'
 # will be made
 logger = logging.getLogger('cameraPi')
 logger.setLevel(logging.DEBUG)
-handler = RotatingFileHandler(config.get('logs', 'main',
-								maxBytes=10000,
-								backupCount=1)
-formatter = logging.Formatter('[%(asctime)s] [%(levelname)s] %(message)s',
-								datefmt='%Y-%m-%d %H:%M:%S')
-handler.setFormatter(formatter)
-logger.addHandler(handler)
+#handler = RotatingFileHandler(config.get('logs', 'main'), maxBytes=10000)
+#formatter = logging.Formatter('[%(asctime)s] [%(levelname)s] %(message)s',
+#								datefmt='%Y-%m-%d %H:%M:%S')
+#handler.setFormatter(formatter)
+#logger.addHandler(handler)
 
 
 # Setup xmlrpc control of supervisor
