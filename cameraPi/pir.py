@@ -1,7 +1,13 @@
+import io
 import sys
 import time
 import smtplib
+import picamera
 from subprocess import check_output, call
+
+from email.mime.text import MIMEText
+from email.mime.image import MIMEImage
+from email.mime.multipart import MIMEMultipart
 
 import ConfigParser
 from os import path
@@ -23,16 +29,41 @@ def send_email(
         recipients=None,
         body=None,
         user=None,
-        pw=None):
+        pw=None,
+        image_data=None):
     try:
+
+        msg = MIMEMultipart()
+        msg['Subject'] = subject
+        msg['From'] = sender
+        msg['To'] = recipients
+        text = MIMEText(body)
+        msg.attach(text)
+
+        if image_data:
+            mime_image = MIMEImage(image_data.read(), 'capture.jpeg')
+            image_data.close()
+            msg.attach(mime_image)
+
         server = smtplib.SMTP()
         server.connect("smtp.gmail.com", 'submission')
         server.starttls()
         server.ehlo()
         server.login(user, pw)
-        server.sendmail(sender, recipients, 'Subject: {subject}\n\n{body}'.format(subject=subject, body=body))
+        server.sendmail(sender, recipients, msg.as_string())
     except Exception, e:
         return e
+
+
+def take_picture():
+    img_data = io.BytesIO()
+    with picamera.PiCamera() as camera:
+        camera.resolution = (800, 600)
+        camera.start_preview()
+        # Camera warm-up time
+        time.sleep(2)
+        camera.capture(img_data, '.jpeg')
+        return img_data
 
 
 def get_pin_status(pin):
@@ -40,6 +71,7 @@ def get_pin_status(pin):
 
 
 if __name__ == '__main__':
+    send_alert = config.get('pir', 'email')
     read_interval = 0.5
     # seconds_to_sleep = 10
     admins = ['laytod@gmail.com']
@@ -53,15 +85,15 @@ if __name__ == '__main__':
         status = get_pin_status(pin)
 
         if status == 1:
-            print "motion detected"
-            send_email(
-                sender=username,
-                recipients=admins,
-                subject=subject,
-                body=body,
-                user=username,
-                pw=password
-            )
+            if send_alert:
+                send_email(
+                    sender=username,
+                    recipients=admins,
+                    subject=subject,
+                    body=body,
+                    user=username,
+                    pw=password
+                )
             print 'sent email to {recipients}'.format(recipients=admins)
             sys.exit(0)
 
