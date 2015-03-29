@@ -4,6 +4,9 @@ import smtplib
 import picamera
 from subprocess import check_output, call
 
+import xmlrpclib
+import supervisor.xmlrpc
+
 from email.mime.text import MIMEText
 from email.mime.image import MIMEImage
 from email.mime.multipart import MIMEMultipart
@@ -20,6 +23,21 @@ password = config.get('email', 'pw')
 
 pin = 27
 call(['gpio', 'export', str(pin), 'in'])
+
+
+supervisor_xmlrpc = xmlrpclib.ServerProxy(
+    'http://127.0.0.1',
+    transport=supervisor.xmlrpc.SupervisorTransport(
+        None,
+        None,
+        'unix:///run/supervisor.sock'
+    )
+)
+
+
+def stream_running():
+    status = supervisor_xmlrpc.supervisor.getProcessInfo('cam')
+    return status
 
 
 def send_email(
@@ -56,25 +74,27 @@ def send_email(
 
 
 def take_picture():
-
     # write to shared memory (RAM) so we don't wear out the SD card
-    filename = 'alert.jpeg'
+    filename = 'tmp.jpg'
+    stamped_filename = 'alert.jpg'
     path = '/run/shm/'
-    cmd = """convert -pointsize 20 -fill '#0008' -draw "rectangle 0,450 720,480" -fill white -draw "text 430,470 '$(date)'" {path}{filename} {path}{filename}""".format(path=path, filename=filename)
 
-    with picamera.PiCamera() as camera:
-        camera.resolution = (720, 480)
-        camera.vflip = True
-        camera.hflip = True
-        camera.start_preview()
-        # Camera warm-up time
-        time.sleep(2)
-        camera.capture(path+filename)
+    cmd = """convert -pointsize 20 -fill '#0008' -draw "rectangle 0,450 720,480" -fill white -draw "text 430,470 '$(date)'" {path}tmp.jpg {path}alert.jpg""".format(path=path)
 
-        # add timestamp
-        call(cmd, shell=True)
+    if not stream_running():
+        with picamera.PiCamera() as camera:
+            camera.resolution = (720, 480)
+            camera.vflip = True
+            camera.hflip = True
+            camera.start_preview()
+            # Camera warm-up time
+            time.sleep(2)
+            camera.capture(path+filename)
 
-    return path+filename
+    # add timestamp
+    call(cmd, shell=True)
+
+    return path+stamped_filename
 
 
 def get_pin_status(pin):
