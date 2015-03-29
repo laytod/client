@@ -2,6 +2,7 @@ import logging
 import xmlrpclib
 import ConfigParser
 from os import path
+from hashlib import sha1
 import supervisor.xmlrpc
 from logging.handlers import RotatingFileHandler
 
@@ -13,7 +14,7 @@ config = ConfigParser.ConfigParser()
 config_path = path.dirname(path.dirname(path.realpath(__file__))) + '/camserv.conf'
 config.read(config_path)
 
-app.api_key = config.get('api', 'key')
+app.api_key = sha1(config.get('api', 'key')).hexdigest()
 
 # Sessions variables are stored client side, on the users browser
 # the content of the variables is encrypted, so users can't
