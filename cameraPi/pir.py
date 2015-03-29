@@ -53,7 +53,7 @@ def send_email(
         msg = MIMEMultipart()
         msg['Subject'] = subject
         msg['From'] = sender
-        msg['To'] = recipients
+        msg['To'] = ', '.join(recipients)
         text = MIMEText(body)
         msg.attach(text)
 
@@ -110,7 +110,7 @@ if __name__ == '__main__':
     send_alert = config.get('pir', 'email')
     read_interval = 0.5
     # seconds_to_sleep = 10
-    admins = 'laytod@gmail.com'
+    admins = ['laytod@gmail.com']
     subject = 'Email Subject'
     body = """
     Hello,
