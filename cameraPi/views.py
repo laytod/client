@@ -71,30 +71,6 @@ def toggle_pin(pin=None):
         raise
 
 
-def get_supervisor_process_info(name='all'):
-    if name == 'all':
-        process_info = supervisor_xmlrpc.supervisor.getAllProcessInfo()
-    else:
-        process_info = supervisor_xmlrpc.supervisor.getProcessInfo(name)
-
-    return process_info
-
-
-@app.route('/process_info', defaults={'name': 'all'})
-@app.route('/process_info/<name>')
-@require_api_key
-def process_info(name='all'):
-    return jsonify(get_supervisor_process_info(name))
-
-
-def start_supervisor_process(name):
-    return supervisor_xmlrpc.supervisor.startProcess(name)
-
-
-def stop_supervisor_process(name):
-    return supervisor_xmlrpc.supervisor.stopProcess(name)
-
-
 @app.route('/toggle_video')
 @require_api_key
 def toggle_video():
@@ -111,6 +87,30 @@ def toggle_video():
         'result': result,
         'info': get_supervisor_process_info(process)
     })
+
+
+@app.route('/process_info', defaults={'name': 'all'})
+@app.route('/process_info/<name>')
+@require_api_key
+def process_info(name='all'):
+    return jsonify(get_supervisor_process_info(name))
+
+
+def get_supervisor_process_info(name='all'):
+    if name == 'all':
+        process_info = supervisor_xmlrpc.supervisor.getAllProcessInfo()
+    else:
+        process_info = supervisor_xmlrpc.supervisor.getProcessInfo(name)
+
+    return process_info
+
+
+def start_supervisor_process(name):
+    return supervisor_xmlrpc.supervisor.startProcess(name)
+
+
+def stop_supervisor_process(name):
+    return supervisor_xmlrpc.supervisor.stopProcess(name)
 
 
 # def gen(camera):
