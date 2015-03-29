@@ -63,7 +63,9 @@ def take_picture():
     cmd = """convert -pointsize 20 -fill '#0008' -draw "rectangle 0,450 720,480" -fill white -draw "text 430,470 '$(date)'" {path}{filename} {path}{filename}""".format(path=path, filename=filename)
 
     with picamera.PiCamera() as camera:
-        camera.resolution = (800, 600)
+        camera.resolution = (720, 480)
+        camera.vflip = True
+        camera.hflip = True
         camera.start_preview()
         # Camera warm-up time
         time.sleep(2)
