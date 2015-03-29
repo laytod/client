@@ -13,7 +13,6 @@ username = config.get('email', 'user')
 password = config.get('email', 'pw')
 
 pin = 27
-seconds_to_sleep = 10
 call(['gpio', 'export', str(pin), 'in'])
 
 
@@ -39,25 +38,29 @@ def get_pin_status(pin):
 
 
 if __name__ == '__main__':
-
-	print "monitoring pin {pin}".format(pin=pin)
+	read_interval = 0.5
+	seconds_to_sleep = 10
+	admins = ['laytod@gmail.com']
+	subject = 'Email Subject'
+	body = """
+	Hello,
+		There was motion detected.
+	"""
 
 	while True:
 		status = get_pin_status(pin)
-		print
 
 		if status == 1:
 			print "motion detected"
-			admins=['laytod@gmail.com']
 			send_email(
 				sender=username,
 				recipients=admins,
-				subject='Faaaake',
-				body='fakey fake fake faaaake EMAIL!',
+				subject=subject,
+				body=body,
 				user=username,
 				pw=password
 			)
 			print 'sent email to {recipients}'.format(recipients=admins)
 
 			time.sleep(seconds_to_sleep)
-		time.sleep(0.5)
+		time.sleep(read_interval)

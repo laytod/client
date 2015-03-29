@@ -13,6 +13,8 @@ config = ConfigParser.ConfigParser()
 config_path = path.dirname(path.dirname(path.realpath(__file__))) + '/camserv.conf'
 config.read(config_path)
 
+app.api_key = config.get('api', 'key')
+
 # Sessions variables are stored client side, on the users browser
 # the content of the variables is encrypted, so users can't
 # actually see it. They could edit it, but again, as the content
