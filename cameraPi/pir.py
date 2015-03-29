@@ -81,7 +81,10 @@ def take_picture():
 
     cmd = """convert -pointsize 20 -fill '#0008' -draw "rectangle 0,450 720,480" -fill white -draw "text 430,470 '$(date)'" {path}tmp.jpg {path}alert.jpg""".format(path=path)
 
-    if not stream_running():
+    s = stream_running()
+    print s
+
+    if s['statename'] != 'RUNNING':
         with picamera.PiCamera() as camera:
             camera.resolution = (720, 480)
             camera.vflip = True
@@ -90,6 +93,8 @@ def take_picture():
             # Camera warm-up time
             time.sleep(2)
             camera.capture(path+filename)
+    else:
+        time.sleep(2)
 
     # add timestamp
     call(cmd, shell=True)
