@@ -81,10 +81,9 @@ def take_picture():
 
     cmd = """convert -pointsize 20 -fill '#0008' -draw "rectangle 0,450 720,480" -fill white -draw "text 430,470 '$(date)'" {path}tmp.jpg {path}alert.jpg""".format(path=path)
 
-    s = stream_running()
-    print s
+    status = stream_running()
 
-    if s['statename'] != 'RUNNING':
+    if status['statename'] != 'RUNNING':
         with picamera.PiCamera() as camera:
             camera.resolution = (720, 480)
             camera.vflip = True
