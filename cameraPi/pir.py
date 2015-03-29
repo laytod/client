@@ -67,7 +67,7 @@ def take_picture():
         camera.start_preview()
         # Camera warm-up time
         time.sleep(2)
-        camera.capture(path)
+        camera.capture(path+filename)
 
         # add timestamp
         call(cmd, shell=True)
@@ -83,7 +83,7 @@ if __name__ == '__main__':
     send_alert = config.get('pir', 'email')
     read_interval = 0.5
     # seconds_to_sleep = 10
-    admins = ['laytod@gmail.com']
+    admins = 'laytod@gmail.com'
     subject = 'Email Subject'
     body = """
     Hello,
