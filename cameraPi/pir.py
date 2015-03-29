@@ -1,4 +1,3 @@
-import io
 import sys
 import time
 import smtplib
@@ -30,7 +29,7 @@ def send_email(
         body=None,
         user=None,
         pw=None,
-        image_data=None):
+        image_path=None):
     try:
 
         msg = MIMEMultipart()
@@ -40,9 +39,10 @@ def send_email(
         text = MIMEText(body)
         msg.attach(text)
 
-        if image_data:
-            mime_image = MIMEImage(image_data.read(), 'capture.jpeg')
-            image_data.close()
+        if image_path:
+            f = open(image_path, 'rb')
+            mime_image = MIMEImage(f.read())
+            f.close()
             msg.attach(mime_image)
 
         server = smtplib.SMTP()
@@ -56,14 +56,23 @@ def send_email(
 
 
 def take_picture():
-    img_data = io.BytesIO()
+
+    # write to shared memory (RAM) so we don't wear out the SD card
+    filename = 'alert.jpeg'
+    path = '/run/shm/'
+    cmd = """convert -pointsize 20 -fill '#0008' -draw "rectangle 0,450 720,480" -fill white -draw "text 430,470 '$(date)'" {path}{filename} {path}{filename}""".format(path=path, filename=filename)
+
     with picamera.PiCamera() as camera:
         camera.resolution = (800, 600)
         camera.start_preview()
         # Camera warm-up time
         time.sleep(2)
-        camera.capture(img_data, '.jpeg')
-        return img_data
+        camera.capture(path)
+
+        # add timestamp
+        call(cmd, shell=True)
+
+    return path+filename
 
 
 def get_pin_status(pin):
@@ -92,7 +101,8 @@ if __name__ == '__main__':
                     subject=subject,
                     body=body,
                     user=username,
-                    pw=password
+                    pw=password,
+                    image_path=take_picture(),
                 )
             print 'sent email to {recipients}'.format(recipients=admins)
             sys.exit(0)
