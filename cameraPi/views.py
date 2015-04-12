@@ -89,6 +89,17 @@ def toggle_video():
     })
 
 
+@app.route('/start_motion_detection')
+@require_api_key
+def start_motion_detection():
+    process = 'pir'
+    result = start_supervisor_process(process)
+    return jsonify({
+        'result': result,
+        'info': get_supervisor_process_info(process)
+    })
+
+
 @app.route('/process_info', defaults={'name': 'all'})
 @app.route('/process_info/<name>')
 @require_api_key
