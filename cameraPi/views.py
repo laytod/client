@@ -1,3 +1,4 @@
+import json
 from functools import wraps
 
 from subprocess import check_output, call
@@ -104,8 +105,8 @@ def start_motion_detection():
 @app.route('/process_info/<name>')
 @require_api_key
 def process_info(name='all'):
-    return jsonify(get_supervisor_process_info(name))
-
+    process_list = get_supervisor_process_info(name)
+    return json.dumps(process_list)
 
 def get_supervisor_process_info(name='all'):
     if name == 'all':
