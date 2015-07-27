@@ -4,7 +4,16 @@ from functools import wraps
 from subprocess import check_output, call
 
 from flask import jsonify, request, abort
-from cameraPi import app, logger, supervisor_xmlrpc
+from cameraPi import app, supervisor_xmlrpc
+
+import logging
+loggg = logging.getLogger(__name__)
+loggg.setLevel(logging.DEBUG)
+fh = logging.FileHandler('/var/log/camserv/test.log')
+fh.setLevel(logging.DEBUG)
+loggg.addHandler(fh)
+loggg.info('tessssssssssssssst')
+#app.logger.info('information')
 
 
 pins = {
@@ -17,7 +26,9 @@ pins = {
 def require_api_key(fn):
     @wraps(fn)
     def decorated(*args, **kwargs):
-        if request.headers.get('api-key') == app.api_key:
+	loggg.info(request.headers)
+        print request.headers
+	if request.headers.get('api-key') == app.api_key:
             return fn(*args, **kwargs)
         else:
             abort(401)
@@ -29,14 +40,17 @@ def get_pin_status(pin):
 
 
 def toggle_gpio(pin):
+
+    loggg.info('toggle')
     pin_status = get_pin_status(pin)
 
     if pin_status == 0:
         call(['gpio', '-g', 'write', str(pin), '1'])
-        logger.info('Turned pin {pin} on'.format(pin=pin))
+        loggg.info('Turned pin {pin} on'.format(pin=pin))
+	loggg.info('turn the damnthing on')
     else:
         call(['gpio', '-g', 'write', str(pin), '0'])
-        logger.info('Turned pin {pin} off'.format(pin=pin))
+        loggg.info('Turned pin {pin} off'.format(pin=pin))
 
 # start out with all pins off
 for pin in pins:
@@ -54,21 +68,23 @@ def get_status(pins):
 
 
 @app.route("/pin_status")
-@require_api_key
+#@require_api_key
 def pin_status():
+    loggg.info('getting status')
     status = get_status(pins)
     return jsonify(status)
 
 
 @app.route("/toggle_pin/<pin>")
-@require_api_key
+#@require_api_key
 def toggle_pin(pin=None):
+    loggg.info('toggling pin {pin}'.format(pin=pin))
     try:
         pin = int(pin)
         toggle_gpio(pin)
         return jsonify(get_status(pins))
     except Exception as e:
-        logger.exception(e)
+        loggg.exception(e)
         raise
 
 
