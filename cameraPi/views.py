@@ -24,10 +24,10 @@ def require_api_key(fn):
     @wraps(fn)
     def decorated(*args, **kwargs):
         if request.headers.get('api-key') == app.api_key:
-                return fn(*args, **kwargs)
+            return fn(*args, **kwargs)
         else:
             abort(401)
-        return decorated
+    return decorated
 
 
 def get_pin_status(pin):
