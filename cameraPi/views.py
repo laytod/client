@@ -7,14 +7,11 @@ from flask import jsonify, request, abort
 from cameraPi import app, supervisor_xmlrpc
 
 import logging
-loggg = logging.getLogger(__name__)
-loggg.setLevel(logging.DEBUG)
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 fh = logging.FileHandler('/var/log/camserv/test.log')
 fh.setLevel(logging.DEBUG)
-loggg.addHandler(fh)
-loggg.info('tessssssssssssssst')
-#app.logger.info('information')
-
+logger.addHandler(fh)
 
 pins = {
     17: {'name': 'green'},
@@ -26,13 +23,11 @@ pins = {
 def require_api_key(fn):
     @wraps(fn)
     def decorated(*args, **kwargs):
-	loggg.info(request.headers)
-        print request.headers
-	if request.headers.get('api-key') == app.api_key:
-            return fn(*args, **kwargs)
+        if request.headers.get('api-key') == app.api_key:
+                return fn(*args, **kwargs)
         else:
             abort(401)
-    return decorated
+        return decorated
 
 
 def get_pin_status(pin):
@@ -40,17 +35,14 @@ def get_pin_status(pin):
 
 
 def toggle_gpio(pin):
-
-    loggg.info('toggle')
     pin_status = get_pin_status(pin)
 
     if pin_status == 0:
         call(['gpio', '-g', 'write', str(pin), '1'])
-        loggg.info('Turned pin {pin} on'.format(pin=pin))
-	loggg.info('turn the damnthing on')
+        logger.info('Turned pin {pin} on'.format(pin=pin))
     else:
         call(['gpio', '-g', 'write', str(pin), '0'])
-        loggg.info('Turned pin {pin} off'.format(pin=pin))
+        logger.info('Turned pin {pin} off'.format(pin=pin))
 
 # start out with all pins off
 for pin in pins:
@@ -68,23 +60,22 @@ def get_status(pins):
 
 
 @app.route("/pin_status")
-#@require_api_key
+@require_api_key
 def pin_status():
-    loggg.info('getting status')
+    logger.info('getting status')
     status = get_status(pins)
     return jsonify(status)
 
 
 @app.route("/toggle_pin/<pin>")
-#@require_api_key
+@require_api_key
 def toggle_pin(pin=None):
-    loggg.info('toggling pin {pin}'.format(pin=pin))
     try:
         pin = int(pin)
         toggle_gpio(pin)
         return jsonify(get_status(pins))
     except Exception as e:
-        loggg.exception(e)
+        logger.exception(e)
         raise
 
 
@@ -96,8 +87,10 @@ def toggle_video():
         process_info = get_supervisor_process_info(process)
 
         if process_info['state'] != 0:
+            logger.info('Stopping video')
             result = stop_supervisor_process(process)
         else:
+            logger.info('Starting video')
             result = start_supervisor_process(process)
 
     return jsonify({
@@ -109,6 +102,7 @@ def toggle_video():
 @app.route('/start_motion_detection')
 @require_api_key
 def start_motion_detection():
+    logger.info('Starting motion detection')
     process = 'pir'
     result = start_supervisor_process(process)
     return jsonify({
@@ -123,6 +117,7 @@ def start_motion_detection():
 def process_info(name='all'):
     process_list = get_supervisor_process_info(name)
     return json.dumps(process_list)
+
 
 def get_supervisor_process_info(name='all'):
     if name == 'all':

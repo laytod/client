@@ -28,14 +28,14 @@ app.secret_key = 'super secret key'
 # maxBytes, and then will start a new log file and make a backup
 # of the full log file.  A total of backupCount backup files
 # will be made
-#logger = logging.getLogger(__name__)
-#logger.setLevel(logging.DEBUG)
+# logger = logging.getLogger(__name__)
+# logger.setLevel(logging.DEBUG)
 
-#handler = RotatingFileHandler(config.get('logs', 'main'), maxBytes=10000)
-#formatter = logging.Formatter('[%(asctime)s] [%(levelname)s] %(message)s',
-#								datefmt='%Y-%m-%d %H:%M:%S')
-#handler.setFormatter(formatter)
-#logger.addHandler(handler)
+# handler = RotatingFileHandler(config.get('logs', 'main'), maxBytes=10000)
+# formatter = logging.Formatter('[%(asctime)s] [%(levelname)s] %(message)s',
+# 								datefmt='%Y-%m-%d %H:%M:%S')
+# handler.setFormatter(formatter)
+# logger.addHandler(handler)
 
 
 # Setup xmlrpc control of supervisor
