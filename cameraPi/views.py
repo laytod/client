@@ -9,9 +9,14 @@ from cameraPi import app, supervisor_xmlrpc
 import logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
-fh = logging.FileHandler('/var/log/camserv/test.log')
-fh.setLevel(logging.DEBUG)
-logger.addHandler(fh)
+handler = logging.FileHandler('/var/log/camserv/camserv.log')
+formatter = logging.Formatter(
+    '[%(asctime)s] [%(levelname)s] %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
+handler.setLevel(logging.DEBUG)
+handler.setFormatter(formatter)
+logger.addHandler(handler)
 
 pins = {
     17: {'name': 'green'},
