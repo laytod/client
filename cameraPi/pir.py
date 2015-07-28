@@ -17,6 +17,18 @@ config = ConfigParser.ConfigParser()
 config_path = path.dirname(path.dirname(path.realpath(__file__))) + '/camserv.conf'
 config.read(config_path)
 
+import logging
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+handler = logging.FileHandler('/var/log/camserv/camserv.log')
+formatter = logging.Formatter(
+    '[%(asctime)s] [%(levelname)s] %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
+handler.setLevel(logging.DEBUG)
+handler.setFormatter(formatter)
+logger.addHandler(handler)
+
 # email credentials
 username = config.get('email', 'user')
 password = config.get('email', 'pw')
@@ -69,6 +81,7 @@ def send_email(
         server.ehlo()
         server.login(user, pw)
         server.sendmail(sender, recipients, msg.as_string())
+        logger.info('Email sent to {recipients}'.format(recipients=recipients))
     except Exception, e:
         return e
 
@@ -85,6 +98,7 @@ def take_picture():
 
     if status['statename'] != 'RUNNING':
         with picamera.PiCamera() as camera:
+            logger.info('Taking picture')
             camera.resolution = (720, 480)
             camera.vflip = True
             camera.hflip = True
@@ -120,6 +134,7 @@ if __name__ == '__main__':
         status = get_pin_status(pin)
 
         if status == 1:
+            logger.info('Motion detected')
             if send_alert:
                 send_email(
                     sender=username,
