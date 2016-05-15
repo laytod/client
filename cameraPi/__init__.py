@@ -1,9 +1,7 @@
 # import logging
-# import xmlrpclib
 import ConfigParser
 from os import path
 # from hashlib import sha1
-# import supervisor.xmlrpc
 # from logging.handlers import RotatingFileHandler
 # from fakeviews2 import CamView, PirView, FakeView
 
@@ -16,6 +14,13 @@ config = ConfigParser.ConfigParser()
 config_path = path.dirname(path.dirname(path.realpath(__file__))) + '/camserv.conf'
 config.read(config_path)
 
+
+from pinMan import PinManager
+from taskMan import TaskManager
+
+
+app.pin_manager = PinManager(dict(config.items('pins')))
+app.task_manager = TaskManager()
 # app.api_key = sha1(config.get('api', 'key')).hexdigest()
 
 # Sessions variables are stored client side, on the users browser
@@ -40,15 +45,7 @@ config.read(config_path)
 # logger.addHandler(handler)
 
 
-# Setup xmlrpc control of supervisor
-# supervisor_xmlrpc = xmlrpclib.ServerProxy(
-#   'http://127.0.0.1',
-#   transport=supervisor.xmlrpc.SupervisorTransport(
-#       None,
-#       None,
-#       'unix:///run/supervisor.sock'
-#   )
-# )
+
 
 enable_camera = config.get('env', 'enable_camera')
 enable_pir = config.get('env', 'enable_pir')
