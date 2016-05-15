@@ -69,3 +69,9 @@ routes.sort()
 for i in routes:
     print i
 print '-------'
+
+
+@app.after_request
+def print_response(response):
+    print response.data
+    return response
