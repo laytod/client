@@ -53,10 +53,12 @@ task_manager = TaskManager()
 from cameraPi.views.cam import CamView
 from cameraPi.views.pir import PirView
 from cameraPi.views.pin import PinView
+from cameraPi.views.tasks import AllView
 
 CamView.register(app, route_base='/cam/')
 PirView.register(app, route_base='/pir/')
 PinView.register(app, route_base='/pin/')
+AllView.register(app, route_base='/all/')
 
 print '-----SERVER------'
 routes = []
