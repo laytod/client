@@ -35,15 +35,15 @@ class AllView(BaseView):
                 pir_state = task['statename'] == 'RUNNING'
 
         results.append({
-            'name': 'cam',
+            'type': 'cam',
             'state': cam_state and mjpg_state,
             'data': {}
         })
 
         results.append({
-            'name': 'pir',
+            'type': 'pir',
             'state': pir_state,
             'data': {}
         })
 
-        return jsonify(results=[pin_results, task_results])
+        return jsonify(results=results)
