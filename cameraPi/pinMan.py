@@ -23,7 +23,8 @@ class PinManager(object):
         return result
 
     def toggle(self, pin_id):
-        pin_status = self.get_info(pin_id)
+        status_info = self.get_info(pin_id)
+        pin_status = status_info[pin_id]
 
         if pin_status == 0:
             self.start(pin_id)
@@ -51,7 +52,8 @@ class PinManager(object):
         cmd = 'gpio -g read {pin_id}'.format(
             pin_id=pin_id
         )
-        return check_output(cmd.split())
+        status = check_output(cmd.split())
+        return int(status)
 
     def _export_pin(self, pin_id, mode):
         cmd = 'gpio export {pin_id} {mode}'.format(
