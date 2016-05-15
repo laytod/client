@@ -21,14 +21,14 @@ class TaskManager(object):
 
     def get_info(self, name=None):
         if name is None:
-            process_info = self.xmlrpc.supervisor.getAllProcessInfo()
+            process_info = self.proxy.supervisor.getAllProcessInfo()
         else:
-            process_info = self.xmlrpc.supervisor.getProcessInfo(name)
+            process_info = self.proxy.supervisor.getProcessInfo(name)
 
         return process_info
 
     def start(self, name):
-        return self.xmlrpc.supervisor.startProcess(name)
+        return self.proxy.supervisor.startProcess(name)
 
     def stop(self, name):
-        return self.xmlrpc.supervisor.stopProcess(name)
+        return self.proxy.supervisor.stopProcess(name)
