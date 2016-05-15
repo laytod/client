@@ -8,7 +8,7 @@ class PirView(BaseView):
     def status(self):
         pir_status = task_manager.get_info('pir')
         results = {
-            'name': 'pir',
+            'type': 'pir',
             'state': pir_status['statename'] == 'RUNNING',
             'data': {}
         }
