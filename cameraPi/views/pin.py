@@ -13,12 +13,30 @@ class PinView(BaseView):
 
     @route('/toggle/<pin_id>')
     def toggle(self, pin_id):
-        pin_manager.toggle(pin_id)
+        state = pin_manager.toggle(pin_id)
+        results = {
+            'name': pin_manager.pin_config[pin_id],
+            'state': state,
+            'success': True
+        }
+        return jsonify(results=results)
 
     @route('/start/<pin_id>')
     def start(self, pin_id):
         pin_manager.start(pin_id)
+        results = {
+            'name': pin_manager.pin_config[pin_id],
+            'state': True,
+            'success': True,
+        }
+        return jsonify(results=results)
 
     @route('/stop/<pin_id>')
     def stop(self, pin_id):
         pin_manager.stop(pin_id)
+        results = {
+            'name': pin_manager.pin_config[pin_id],
+            'state': False,
+            'success': True,
+        }
+        return jsonify(results=results)
