@@ -36,15 +36,32 @@ class CamView(BaseView):
             elif name == 'mjpg':
                 mjpg_state = task['statename'] == 'RUNNING'
 
-        task_manager.stop('cam')
-        task_manager.stop('mjpg')
+        # task_manager.stop('cam')
+        # task_manager.stop('mjpg')
 
-        # Start the camera only if it isn't already started.
-        # This should attempt to restart the camera if a
-        # previous start has failed
-        if not cam_state or not mjpg_state:
+        # # Start the camera only if it isn't already started.
+        # # This should attempt to restart the camera if a
+        # # previous start has failed
+        # if not cam_state or not mjpg_state:
+        #     task_manager.start('cam')
+        #     task_manager.start('mjpg')
+
+        if cam_state:
+            task_manager.stop('cam')
+        else:
             task_manager.start('cam')
+
+        if mjpg_state:
+            task_manager.stop('mjpg')
+        else:
             task_manager.start('mjpg')
+
+        results = {
+            'name': 'cam',
+            'state': cam_state and mjpg_state,
+            'success': True
+        }
+        return jsonify(results=results)
 
     def start(self):
         task_manager.start('cam')
