@@ -19,8 +19,8 @@ from pinMan import PinManager
 from taskMan import TaskManager
 
 
-app.pin_manager = PinManager(dict(config.items('pins')))
-app.task_manager = TaskManager()
+pin_manager = PinManager(dict(config.items('pins')))
+task_manager = TaskManager()
 # app.api_key = sha1(config.get('api', 'key')).hexdigest()
 
 # Sessions variables are stored client side, on the users browser
@@ -47,8 +47,8 @@ app.task_manager = TaskManager()
 
 
 
-enable_camera = config.get('env', 'enable_camera')
-enable_pir = config.get('env', 'enable_pir')
+# enable_camera = config.get('env', 'enable_camera')
+# enable_pir = config.get('env', 'enable_pir')
 
 from cameraPi.views.cam import CamView
 from cameraPi.views.pir import PirView

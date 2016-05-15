@@ -1,11 +1,12 @@
 from base import BaseView
 from flask.ext.classy import route
+from cameraPi import pin_manager
 
 
 class PinView(BaseView):
     @route('/status/<pin_id>')
     def status(self, pin_id):
-        return 'pin {} status'.format(pin_id)
+        return pin_manager.get_info()
 
     @route('/toggle/<pin_id>')
     def toggle(self, pin_id):
