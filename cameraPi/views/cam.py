@@ -13,9 +13,9 @@ class CamView(BaseView):
         for task in task_status:
             name = task['name']
             if name == 'cam':
-                cam_state = task['statename'] != 'RUNNING'
+                cam_state = task['statename'] == 'RUNNING'
             elif name == 'mjpg':
-                mjpg_state = task['statename'] != 'RUNNING'
+                mjpg_state = task['statename'] == 'RUNNING'
 
         results = {
             'name': 'cam',
