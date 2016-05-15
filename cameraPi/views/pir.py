@@ -14,6 +14,15 @@ class PirView(BaseView):
         }
         return jsonify(results=results)
 
+    def toggle(self):
+        pir_status = task_manager.get_info('pir')
+        pir_state = pir_status['statename'] == 'RUNNING'
+
+        if pir_state:
+            return self.stop()
+        else:
+            return self.start()
+
     def start(self):
         task_manager.start('pir')
         results = {

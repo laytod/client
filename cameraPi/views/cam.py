@@ -46,6 +46,7 @@ class CamView(BaseView):
         #     task_manager.start('cam')
         #     task_manager.start('mjpg')
 
+        # just toggle each one and pray it works...
         if cam_state:
             task_manager.stop('cam')
         else:
@@ -58,7 +59,7 @@ class CamView(BaseView):
 
         results = {
             'name': 'cam',
-            'state': cam_state and mjpg_state,
+            'state': not cam_state or not mjpg_state,
             'success': True
         }
         return jsonify(results=results)
