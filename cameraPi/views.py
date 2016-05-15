@@ -1,10 +1,10 @@
 import json
-from functools import wraps
 
 from subprocess import check_output, call
 
-from flask import jsonify, request, abort
+from flask import jsonify
 from cameraPi import app, supervisor_xmlrpc
+from decorators import require_api_key
 
 import logging
 logger = logging.getLogger(__name__)
@@ -25,14 +25,14 @@ pins = {
 }
 
 
-def require_api_key(fn):
-    @wraps(fn)
-    def decorated(*args, **kwargs):
-        if request.headers.get('api-key') == app.api_key:
-            return fn(*args, **kwargs)
-        else:
-            abort(401)
-    return decorated
+# def require_api_key(fn):
+#     @wraps(fn)
+#     def decorated(*args, **kwargs):
+#         if request.headers.get('api-key') == app.api_key:
+#             return fn(*args, **kwargs)
+#         else:
+#             abort(401)
+#     return decorated
 
 
 def get_pin_status(pin):
@@ -92,10 +92,10 @@ def toggle_video():
         process_info = get_supervisor_process_info(process)
 
         if process_info['state'] != 0:
-            logger.info('Stopping video')
+            logger.info('Stopping {process}'.format(process=process))
             result = stop_supervisor_process(process)
         else:
-            logger.info('Starting video')
+            logger.info('Starting {process}'.format(process=process))
             result = start_supervisor_process(process)
 
     return jsonify({
