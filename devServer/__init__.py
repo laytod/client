@@ -9,11 +9,6 @@ sys.path.append(real_view_path)
 
 
 from helpers import create_fake_view_classes, get_all_routes
-from cam import CamView
-from pir import PirView
-from pin import PinView
-from tasks import AllView
-
 
 import ConfigParser
 # parse the config
@@ -31,14 +26,7 @@ app.pin_state = pin_state
 app.cam_state = False
 app.pir_state = False
 
-view_methods = {
-    'cam': CamView.get_view_info(),
-    'pir': PirView.get_view_info(),
-    'pin': PinView.get_view_info(),
-    'all': AllView.get_view_info(),
-}
-
-create_fake_view_classes(app, view_methods)
+create_fake_view_classes(app)
 
 
 routes = get_all_routes(app)

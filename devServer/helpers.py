@@ -2,31 +2,15 @@ from flask.ext.classy import FlaskView
 from fakeviews import fake_start, fake_stop, fake_toggle, fake_status, fake_all_status, fake_toggle_pin
 
 
-def get_function_map(methods):
-    function_map = {}
-    for method in methods:
-        if method == 'start':
-            fake_method = fake_start
-        if method == 'stop':
-            fake_method = fake_stop
-        if method == 'toggle':
-            fake_method = fake_toggle
-        if method == 'status':
-            fake_method = fake_status
+def create_fake_view_classes(app):
+    function_map = {
+        'start': fake_start,
+        'stop': fake_stop,
+        'toggle': fake_toggle,
+        'status': fake_status,
+    }
 
-        function_map.update({method: fake_method})
-    return function_map
-
-
-def create_fake_view_classes(app, view_methods):
-    for method, methods in view_methods.iteritems():
-        if method == 'all':
-            # use a special fake_status for 'all' endpoint
-            function_map = {'status': fake_all_status}
-        elif method == 'pin':
-            function_map = {'toggle': fake_toggle_pin}
-        else:
-            function_map = get_function_map(methods)
+    for method in function_map.keys():
         x = type(method, (FlaskView,), function_map)
         x.register(app, route_base='/' + method + '/')
 
