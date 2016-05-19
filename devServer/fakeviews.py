@@ -37,7 +37,7 @@ def fake_all_status(self):
             }
         })
 
-    return jsonify(result=result)
+    return jsonify(results=result)
 
 
 @route('/toggle/')
