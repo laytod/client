@@ -1,9 +1,21 @@
-# import logging
+
+import logging
 import ConfigParser
 from os import path
 # from hashlib import sha1
 # from logging.handlers import RotatingFileHandler
 # from fakeviews2 import CamView, PirView, FakeView
+
+logger = logging.getLogger('pi_api')
+logger.setLevel(logging.DEBUG)
+handler = logging.FileHandler('/var/log/camserv/camserv.log')
+formatter = logging.Formatter(
+    '[%(asctime)s] [%(levelname)s] %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
+handler.setLevel(logging.DEBUG)
+handler.setFormatter(formatter)
+logger.addHandler(handler)
 
 from flask import Flask
 app = Flask(__name__)

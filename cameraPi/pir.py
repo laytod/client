@@ -4,6 +4,7 @@ import smtplib
 import picamera
 from subprocess import check_output, call
 
+import logging
 import xmlrpclib
 import supervisor.xmlrpc
 
@@ -17,17 +18,7 @@ config = ConfigParser.ConfigParser()
 config_path = path.dirname(path.dirname(path.realpath(__file__))) + '/camserv.conf'
 config.read(config_path)
 
-import logging
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
-handler = logging.FileHandler('/var/log/camserv/camserv.log')
-formatter = logging.Formatter(
-    '[%(asctime)s] [%(levelname)s] %(message)s',
-    datefmt='%Y-%m-%d %H:%M:%S'
-)
-handler.setLevel(logging.DEBUG)
-handler.setFormatter(formatter)
-logger.addHandler(handler)
+logger = logging.getLogger('__name__')
 
 # email credentials
 username = config.get('email', 'user')
@@ -98,21 +89,21 @@ def take_picture():
 
     if status['statename'] != 'RUNNING':
         with picamera.PiCamera() as camera:
-            logger.info('Taking picture')
             camera.resolution = (720, 480)
             camera.vflip = True
             camera.hflip = True
             camera.start_preview()
             # Camera warm-up time
             time.sleep(2)
-            camera.capture(path+filename)
+            logger.info('Taking picture')
+            camera.capture(path + filename)
     else:
         time.sleep(2)
 
     # add timestamp
     call(cmd, shell=True)
 
-    return path+stamped_filename
+    return path + stamped_filename
 
 
 def get_pin_status(pin):
@@ -130,6 +121,8 @@ if __name__ == '__main__':
         There was motion detected.
     """
 
+    logger.info('Starting motion detection')
+
     while True:
         status = get_pin_status(pin)
 
@@ -145,7 +138,7 @@ if __name__ == '__main__':
                     pw=password,
                     image_path=take_picture(),
                 )
-            print 'sent email to {recipients}'.format(recipients=admins)
+            logger.info('sent email to {recipients}'.format(recipients=admins))
             sys.exit(0)
 
             # time.sleep(seconds_to_sleep)
