@@ -4,7 +4,6 @@ import smtplib
 import picamera
 from subprocess import check_output, call
 
-import logging
 import xmlrpclib
 import supervisor.xmlrpc
 
@@ -18,7 +17,9 @@ config = ConfigParser.ConfigParser()
 config_path = path.dirname(path.dirname(path.realpath(__file__))) + '/camserv.conf'
 config.read(config_path)
 
-logger = logging.getLogger('__name__')
+import logging
+logger = logging.getLogger('pi_api.pir')
+
 
 # email credentials
 username = config.get('email', 'user')
@@ -33,7 +34,7 @@ supervisor_xmlrpc = xmlrpclib.ServerProxy(
     transport=supervisor.xmlrpc.SupervisorTransport(
         None,
         None,
-        'unix:///run/supervisor.sock'
+        serverurl='unix://' + '/var/run/supervisor.sock'
     )
 )
 
@@ -121,7 +122,7 @@ if __name__ == '__main__':
         There was motion detected.
     """
 
-    logger.info('Starting motion detection')
+    logger.info('Motion detection activated')
 
     while True:
         status = get_pin_status(pin)
@@ -138,7 +139,6 @@ if __name__ == '__main__':
                     pw=password,
                     image_path=take_picture(),
                 )
-            logger.info('sent email to {recipients}'.format(recipients=admins))
             sys.exit(0)
 
             # time.sleep(seconds_to_sleep)

@@ -1,5 +1,9 @@
+import logging
 import xmlrpclib
 import supervisor.xmlrpc
+
+
+logger = logging.getLogger(__name__)
 
 
 class TaskManager(object):
@@ -28,7 +32,9 @@ class TaskManager(object):
         return process_info
 
     def start(self, name):
+        logger.info('turning task {} ON'.format(name))
         return self.proxy.supervisor.startProcess(name)
 
     def stop(self, name):
+        logger.info('turning task {} OFF'.format(name))
         return self.proxy.supervisor.stopProcess(name)

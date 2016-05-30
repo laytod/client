@@ -1,4 +1,8 @@
+import logging
 from subprocess import check_output, call
+
+
+logger = logging.getLogger(__name__)
 
 
 class PinManager(object):
@@ -34,12 +38,12 @@ class PinManager(object):
         return not bool(pin_status)
 
     def start(self, pin_id):
+        logger.info('turning pin {} ON'.format(pin_id))
         self._write_to_pin(pin_id, 1)
-        # logger.info('Turned pin {pin} on'.format(pin=pin))
 
     def stop(self, pin_id):
+        logger.info('turning pin {} OFF'.format(pin_id))
         self._write_to_pin(pin_id, 0)
-        # logger.info('Turned pin {pin} off'.format(pin=pin))
 
     def _write_to_pin(self, pin_id, value):
         cmd = 'gpio -g write {pin_id} {value}'.format(
