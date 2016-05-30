@@ -18,7 +18,16 @@ config_path = path.dirname(path.dirname(path.realpath(__file__))) + '/camserv.co
 config.read(config_path)
 
 import logging
-logger = logging.getLogger('pi_api.pir')
+logger = logging.getLogger('pir')
+logger.setLevel(logging.DEBUG)
+handler = logging.FileHandler('/var/log/camserv/camserv.log')
+formatter = logging.Formatter(
+    '[%(asctime)s] [%(levelname)s] %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
+handler.setLevel(logging.DEBUG)
+handler.setFormatter(formatter)
+logger.addHandler(handler)
 
 
 # email credentials
