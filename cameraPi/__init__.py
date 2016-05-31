@@ -6,8 +6,12 @@ from os import path
 # from logging.handlers import RotatingFileHandler
 # from fakeviews2 import CamView, PirView, FakeView
 
-logger = logging.getLogger('pi_api')
-logger.setLevel(logging.DEBUG)
+
+from flask import Flask
+app = Flask(__name__)
+
+# logger = logging.getLogger('pi_api')
+app.logger.setLevel(logging.DEBUG)
 handler = logging.FileHandler('/var/log/camserv/camserv.log')
 formatter = logging.Formatter(
     '[%(asctime)s] [%(levelname)s] %(message)s',
@@ -15,11 +19,7 @@ formatter = logging.Formatter(
 )
 handler.setLevel(logging.DEBUG)
 handler.setFormatter(formatter)
-logger.addHandler(handler)
-
-from flask import Flask
-app = Flask(__name__)
-app.logger = logger
+app.logger.addHandler(handler)
 
 
 # parse the config
