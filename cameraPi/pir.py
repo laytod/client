@@ -17,18 +17,8 @@ config = ConfigParser.ConfigParser()
 config_path = path.dirname(path.dirname(path.realpath(__file__))) + '/camserv.conf'
 config.read(config_path)
 
-import logging
-logger = logging.getLogger('pir')
-logger.setLevel(logging.DEBUG)
-handler = logging.FileHandler('/var/log/camserv/camserv.log')
-formatter = logging.Formatter(
-    '[%(asctime)s] [%(levelname)s] %(message)s',
-    datefmt='%Y-%m-%d %H:%M:%S'
-)
-handler.setLevel(logging.DEBUG)
-handler.setFormatter(formatter)
-logger.addHandler(handler)
-
+from cameraPi import app
+logger = app.logger
 
 # email credentials
 username = config.get('email', 'user')
