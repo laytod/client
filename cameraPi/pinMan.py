@@ -1,8 +1,7 @@
-import logging
 from subprocess import check_output, call
 
-
-logger = logging.getLogger(__name__)
+from cameraPi import app
+logger = app.logger
 
 
 class PinManager(object):

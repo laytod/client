@@ -1,9 +1,9 @@
-import logging
 import xmlrpclib
 import supervisor.xmlrpc
 
 
-logger = logging.getLogger(__name__)
+from cameraPi import app
+logger = app.logger
 
 
 class TaskManager(object):

@@ -19,6 +19,7 @@ logger.addHandler(handler)
 
 from flask import Flask
 app = Flask(__name__)
+app.logger = logger
 
 
 # parse the config
