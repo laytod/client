@@ -4,13 +4,11 @@ import ConfigParser
 from os import path
 # from hashlib import sha1
 # from logging.handlers import RotatingFileHandler
-# from fakeviews2 import CamView, PirView, FakeView
 
 
 from flask import Flask
 app = Flask(__name__)
 
-# logger = logging.getLogger('pi_api')
 app.logger.setLevel(logging.DEBUG)
 handler = logging.FileHandler('/var/log/camserv/camserv.log')
 formatter = logging.Formatter(
@@ -40,7 +38,7 @@ task_manager = TaskManager()
 # the content of the variables is encrypted, so users can't
 # actually see it. They could edit it, but again, as the content
 # wouldn't be signed with this hash key, it wouldn't be valid
-# You need to set a scret key (random text) and keep it secret
+# You need to set a secret key (random text) and keep it secret
 # app.secret_key = 'super secret key'
 
 # Setup logging
@@ -58,11 +56,6 @@ task_manager = TaskManager()
 # logger.addHandler(handler)
 
 
-
-
-# enable_camera = config.get('env', 'enable_camera')
-# enable_pir = config.get('env', 'enable_pir')
-
 from cameraPi.views.cam import CamView
 from cameraPi.views.pir import PirView
 from cameraPi.views.pin import PinView
@@ -73,7 +66,7 @@ PirView.register(app, route_base='/pir/')
 PinView.register(app, route_base='/pin/')
 AllView.register(app, route_base='/all/')
 
-print '-----SERVER------'
+print '-----GPIO SERVER------'
 routes = []
 for rule in app.url_map.iter_rules():
     routes.append(rule.rule)

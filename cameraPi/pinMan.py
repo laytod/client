@@ -9,9 +9,9 @@ class PinManager(object):
         self.pin_config = pin_config
 
         # start out with all pins off
-        for pin in self.pin_config:
-            self._export_pin(pin, 'out')
-            self._write_to_pin(pin, 0)
+        # for pin in self.pin_config:
+        #     self._export_pin(pin, 'out')
+        #     self._write_to_pin(pin, 0)
 
     def get_info(self, pin_id=None):
         if pin_id is None:
