@@ -2,6 +2,7 @@ import time
 import io
 import threading
 import picamera
+import subprocess
 
 
 class Camera(object):
@@ -37,27 +38,14 @@ class Camera(object):
             print 'warming up...'
             time.sleep(2)
 
-            print 'starting stream.'
-            stream = io.BytesIO()
-            for _ in camera.capture_continuous(stream, 'jpeg', use_video_port=True):
-                # store frame
-                stream.seek(0)
-                print 'saving frame'
-                cls.frame = stream.read()
+            path = '/run/shm/'
+            cmd = """convert -pointsize 20 -fill '#0008' -draw "rectangle 0,450 720,480" -fill white -draw "text 430,470 '$(date)'" {path}tmp.jpg {path}image.jpg""".format(path=path)
+            while time.time() - cls.last_access < 10:
+                camera.capture('{path}/tmp.jpg'.format(path=path))
+                subprocess.call(cmd, shell=True)
+                time.sleep(1)
+                pass
 
-                # reset stream for next frame
-                stream.seek(0)
-                stream.truncate()
-
-                time.sleep(4)
-
-                # if there hasn't been any clients asking for frames in
-                # the last 10 seconds stop the thread
-                if time.time() - cls.last_access > 10:
-                    print 'killing the video thread'
-                    break
-                else:
-                    print '10 seconds havent elapsed'
         cls.thread = None
 
     # @classmethod

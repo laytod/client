@@ -82,11 +82,18 @@ def print_response(response):
     print response.data
     return response
 
+import time
+
 
 def gen(camera):
     """Video streaming generator function."""
+    path = '/run/shm/tmp.jpg'
     while True:
-        frame = camera.get_frame()
+        time.sleep(2)
+        # frame = camera.get_frame()
+        with open(path, 'r') as stream_img:
+            frame = stream_img.read()
+
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
