@@ -94,6 +94,7 @@ from camera import Camera
 
 
 @app.route('/test_feed')
+def index():
     template = """
         <html>
           <body>
