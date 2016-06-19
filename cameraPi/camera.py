@@ -54,5 +54,41 @@ class Camera(object):
                 # if there hasn't been any clients asking for frames in
                 # the last 10 seconds stop the thread
                 if time.time() - cls.last_access > 10:
+                    print 'killing the video thread'
                     break
+                else:
+                    print '10 seconds havent elapsed'
         cls.thread = None
+
+    # @classmethod
+    # def _thread(cls):
+    #     with picamera.PiCamera() as camera:
+    #         # camera setup
+    #         camera.resolution = (320, 240)
+    #         camera.hflip = True
+    #         camera.vflip = True
+
+    #         # let camera warm up
+    #         camera.start_preview()
+    #         print 'warming up...'
+    #         time.sleep(2)
+
+    #         print 'starting stream.'
+    #         stream = io.BytesIO()
+    #         for _ in camera.capture_continuous(stream, 'jpeg', use_video_port=True):
+    #             # store frame
+    #             stream.seek(0)
+    #             print 'saving frame'
+    #             cls.frame = stream.read()
+
+    #             # reset stream for next frame
+    #             stream.seek(0)
+    #             stream.truncate()
+
+    #             time.sleep(4)
+
+    #             # if there hasn't been any clients asking for frames in
+    #             # the last 10 seconds stop the thread
+    #             if time.time() - cls.last_access > 10:
+    #                 break
+    #     cls.thread = None
