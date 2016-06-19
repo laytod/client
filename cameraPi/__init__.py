@@ -95,15 +95,7 @@ from camera import Camera
 
 @app.route('/test_feed')
 def index():
-    template = """
-        <html>
-          <body>
-            <h1>Video Streaming Test</h1>
-            <img src="{{ url_for('video_feed') }}">
-          </body>
-        </html>
-    """
-    return render_template(template)
+    return render_template('feed.html')
 
 
 @app.route('/video_feed')
