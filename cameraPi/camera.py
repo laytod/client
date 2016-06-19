@@ -34,13 +34,16 @@ class Camera(object):
 
             # let camera warm up
             camera.start_preview()
+            print 'warming up...'
             time.sleep(2)
 
+            print 'starting stream.'
             stream = io.BytesIO()
             for foo in camera.capture_continuous(stream, 'jpeg',
                                                  use_video_port=True):
                 # store frame
                 stream.seek(0)
+                print 'saving frame'
                 cls.frame = stream.read()
 
                 # reset stream for next frame
