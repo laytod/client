@@ -6,7 +6,7 @@ from os import path
 # from logging.handlers import RotatingFileHandler
 
 
-from flask import Flask, Response
+from flask import Flask, Response, render_template
 app = Flask(__name__)
 
 app.logger.setLevel(logging.DEBUG)
@@ -91,6 +91,18 @@ def gen(camera):
                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
 from camera import Camera
+
+
+@app.route('/test_feed')
+    template = """
+        <html>
+          <body>
+            <h1>Video Streaming Test</h1>
+            <img src="{{ url_for('video_feed') }}">
+          </body>
+        </html>
+    """
+    return render_template(template)
 
 
 @app.route('/video_feed')
