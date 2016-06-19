@@ -39,8 +39,7 @@ class Camera(object):
 
             print 'starting stream.'
             stream = io.BytesIO()
-            for foo in camera.capture_continuous(stream, 'jpeg',
-                                                 use_video_port=True):
+            for _ in camera.capture_continuous(stream, 'jpeg', use_video_port=True):
                 # store frame
                 stream.seek(0)
                 print 'saving frame'
@@ -49,6 +48,8 @@ class Camera(object):
                 # reset stream for next frame
                 stream.seek(0)
                 stream.truncate()
+
+                time.sleep(4)
 
                 # if there hasn't been any clients asking for frames in
                 # the last 10 seconds stop the thread
