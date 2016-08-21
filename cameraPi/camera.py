@@ -1,8 +1,12 @@
 import time
 import io
+import logging
 import threading
 import picamera
 import subprocess
+
+
+logger = logging.getLogger(__name__)
 
 
 class Camera(object):
@@ -13,6 +17,8 @@ class Camera(object):
     @classmethod
     def initialize(cls):
         if cls.thread is None:
+            logger.info('Initializing camera thread.')
+
             # start background frame thread
             cls.thread = threading.Thread(target=cls._thread)
             cls.thread.start()
@@ -23,6 +29,7 @@ class Camera(object):
 
     @classmethod
     def get_frame(cls):
+        logger.info('Getting frame from camera...')
         cls.last_access = time.time()
         cls.initialize()
         return cls.frame
