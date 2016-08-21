@@ -30,6 +30,12 @@ class Camera(object):
         res_width = 320
         res_height = 240
 
+        # res_width = 640
+        # res_height = 480
+
+        # res_width = 1024
+        # res_height = 768
+
         with picamera.PiCamera() as camera:
             # camera setup
             camera.resolution = (res_width, res_height)
@@ -46,8 +52,8 @@ class Camera(object):
             # command to add timestamp banner onto pictures
             cmd = """convert -pointsize 20 -fill '#0008' -draw "rectangle 0,{banner_y} {res_width},{res_height}" -fill white -draw "text {banner_text_x},{banner_text_y} '$(date)'" {path}tmp.jpg {path}image.jpg""".format(
                 path=path,
-                banner_text_y=res_height - 15,
-                banner_text_x=res_width - 280,
+                banner_text_y=res_height - 14,
+                banner_text_x=res_width - 290,
                 banner_y=res_height - 40,
                 res_width=res_width,
                 res_height=res_height,
