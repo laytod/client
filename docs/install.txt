@@ -1,0 +1,191 @@
+--==--==----==--==----==--==----==--==----==--==----==--==----==--==----==--==----==--==----==--==--
+3G BARE MINIMUM INSTALL
+--==--==----==--==----==--==----==--==----==--==----==--==----==--==----==--==----==--==----==--==--
+
+# ----- write the image to the sd
+df -h (gives you the name of the device)
+dd bs=4M if=something.img | pv | dd of=/dev/mmcblk0
+
+
+# ----- make sure to expand filesystem once you boot raspian
+        for the first time
+
+
+# ----- update RPi.GPIO (default one doesn't run on a pi2)
+sudo pip install -U RPi.GPIO
+
+
+# ----- turn off default use of serial port
+vim /etc/inittab
+```
+T0:23:respawn:/sbin/getty -L ttyAMA0 115200 vt100
+```
+vim /boot/cmdline.txt
+```
+dwc_otg.lpm_enable=0 console=tty1 root=/dev/mmcblk0p2 rootfstype=ext4 elevator=deadline rootwait
+```
+
+sudo reboot
+
+
+# ----- turn on the board (light should turn blue)
+use SparqEE.py:
+* `cmd_setup()` to get everything setup
+* `gpio_turnOn()` and `gpio_turnOff()` to turn on/off the board
+* `cmd_cleanup()` after turning off the board
+
+
+# ----- setup 3g with sakis3g
+cd /home/pi/
+sudo ./sakis3g connect --console --nostorage --pppd APN="Internetd.gdsp" BAUD=115200 CUSTOM_TTY="/dev/ttyAMA0" MODEM="OTHER" OTHER="CUSTOM_TTY" APN_USER="user" APN_PASS="pass" CUSTOM_APN="foo" --noprobe --debug
+
+
+--==--==----==--==----==--==----==--==----==--==----==--==----==--==----==--==----==--==----==--==--
+
+--==--==----==--==----==--==----==--==----==--==----==--==----==--==----==--==----==--==----==--==--
+sudo apt-get update
+sudo apt-get upgrade
+
+sudo apt-get install -y apache2
+sudo apt-get install -y autossh
+sudo apt-get install -y fail2ban
+sudo apt-get install -y git
+sudo apt-get install -y htop
+sudo apt-get install -y imagemagick
+sudo apt-get install -y libapache2-mod-wsgi
+sudo apt-get install -y python-dev
+sudo apt-get install -y python-pip
+sudo apt-get install -y screen
+sudo apt-get install -y supervisor
+sudo apt-get install -y vim
+
+sudo pip install flask
+sudo pip install flask-classy
+sudo pip install supervisor
+
+
+# ----- install camera
+ -- plug camera module into board
+ -- enable the camera module with `sudo raspi-config`
+
+
+# ----- create new user and remove pi
+sudo useradd -m h0gtrap -G pi,adm,dialout,cdrom,sudo,audio,video,plugdev,games,users,netdev,input,spi,gpio
+sudo deluser -remove-home pi
+
+
+# ----- add autossh command to run on boot
+vim /etc/rc.local
+```
+su pi -c "autossh -M 20000 -f -N camserv -R 8080:localhost:8080 -R 8022:localhost:22 -R 8088:localhost:80"
+```
+
+# ----- setup supervisor
+sudo cp <path-to-repo>/conf/*.conf /etc/supervisor/conf.d/
+alias ss="sudo supervisorctl -c /etc/supervisor/supervisord.conf "
+sudo chown pi:pi /var/run/supervisor.sock
+ss reread
+ss reload
+ss status
+
+
+# ----- install mjpg
+http://blog.miguelgrinberg.com/post/how-to-build-and-run-mjpg-streamer-on-the-raspberry-pi
+
+ -- sudo apt-get install libjpeg8-dev imagemagick libv4l-dev
+ -- sudo ln -s /usr/include/linux/videodev2.h /usr/include/linux/videodev.h
+
+ -- wget http://sourceforge.net/code-snapshots/svn/m/mj/mjpg-streamer/code/mjpg-streamer-code-182.zip
+ -- unzip mjpg-streamer-code-182.zip
+
+ -- cd mjpg-streamer-code-182/mjpg-streamer
+ -- make mjpg_streamer input_file.so output_http.so
+
+ -- sudo cp mjpg_streamer /usr/local/bin
+ -- sudo cp output_http.so input_file.so /usr/local/lib/
+ -- sudo cp -R www /usr/local/www
+
+
+# ----- setup wiringPi
+git clone git://git.drogon.net/wiringPi
+cd wiringPi/
+./build
+
+ -- enable pin 17 for non-root access
+        gpio export 17 out
+ -- turn pin 17 on and off
+        gpio -g write 17 1
+        gpio -g write 17 0
+
+
+
+
+
+
+--==--==----==--==----==--==----==--==----==--==----==--==----==--==----==--==----==--==----==--==--
+Deploy
+--==--==----==--==----==--==----==--==----==--==----==--==----==--==----==--==----==--==----==--==--
+sudo chown www-data:www-data /var/run/supervisor.sock
+sudo mkdir /var/www/camserv
+sudo cp -r /home/pi/client/* /var/www/camserv/
+
+may have to add the server's ip in info.html template
+
+apache vhost:
+
+<VirtualHost *:80>
+    ServerName localhost
+
+    WSGIDaemonProcess cameraPi user=pi group=pi threads=5
+    WSGIScriptAlias / /var/www/camserv/camserv.wsgi
+
+    <Directory /var/www/camserv/cameraPi/>
+        Require all granted
+    </Directory>
+
+    ErrorLog /var/log/camserv/camserv_error.log
+    CustomLog /var/log/camserv/camserv_access.log "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\""
+</VirtualHost>
+
+
+
+
+
+
+
+
+
+
+
+-----
+testing
+-----
+
+####
+# server:8080 -> pi:8080    - mjpg (cam stream)
+# server:8088 -> pi:80      - flask api
+# server:8022 -> pi:22      - ssh
+####
+ssh -fN -R 8080:localhost:8080 -R 8088:localhost:80 -R 8022:localhost:22 laytod@104.236.114.229
+
+autossh -M 20000 -f -N laytod@104.236.114.229 -R 8080:localhost:8080 -R 8088:localhost:80 -R 8022:localhost:22
+
+-----
+sudo ./sakis3g connect --console --nostorage --pppd APN="Internetd.gdsp" BAUD=115200 CUSTOM_TTY="/dev/ttyAMA0" MODEM="OTHER" OTHER="CUSTOM_TTY" APN_USER="user" APN_PASS="pass" CUSTOM_APN="foo" --noprobe --debug
+
+
+
+
+
+
+
+
+ssh -fN -R 5000:localhost:5000 laytod@104.236.114.229
+
+
+
+
+
+
+
+

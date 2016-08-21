@@ -1,0 +1,65 @@
+--==--==----==--==----==--==----==--==----==--==----==--==----==--==----==--==----==--==----==--==--
+CONNECT TO PI VIA ETHERNET
+--==--==----==--==----==--==----==--==----==--==----==--==----==--==----==--==----==--==----==--==--
+
+- set ethernet interface's settings for how it gets an IP address to 'Shared to other Computers'
+- plug the ethernet cable into the pi/laptop
+    - notification shows network connection
+- ifconfig
+    - look at eth0 and find the address listed for 'Bcast'
+        ifconfig eth0 | grep "Bcast" | awk -F: '{print $3}' | awk '{print $1}'
+- use the ip from before
+    laytod@tod-thinkpad:~$ nmap -n -sP 10.42.0.255/24
+    Starting Nmap 6.40 ( http://nmap.org ) at 2016-05-22 21:10 EDT
+    Nmap scan report for 10.42.0.1
+    Host is up (0.00018s latency).
+    Nmap scan report for 10.42.0.52
+    Host is up (0.00094s latency).
+    Nmap done: 256 IP addresses (2 hosts up) scanned in 2.61 seconds
+- ip of the pi from the examlple above is 10.42.0.52. ssh into it!
+
+
+--==--==----==--==----==--==----==--==----==--==----==--==----==--==----==--==----==--==----==--==--
+SSH TUNNEL
+--==--==----==--==----==--==----==--==----==--==----==--==----==--==----==--==----==--==----==--==--
+# This command will keep 2 reverse ssh tunnels alive.
+#    8080 (web server) is the cam stream (pi:8080)
+#    8022 (web server) is ssh to pi (pi:22)
+#    8088 (web server) is pi flask server (pi:8088)
+# -f puts command directly into background
+# -M sets the port for ssh to monitor ssh tunnels
+# -N no commands will be executed from the shell over
+#    the ssh tunnel
+#
+autossh -M 20000 -f -N camserv -R 8080:localhost:8080 -R 8022:localhost:22 -R 8088:localhost:80
+
+
+--==--==----==--==----==--==----==--==----==--==----==--==----==--==----==--==----==--==----==--==--
+CURL
+--==--==----==--==----==--==----==--==----==--==----==--==----==--==----==--==----==--==----==--==--
+from hashlib import sha1
+sha1('<api-key>').hexdigest()
+
+curl --header "api-key: 42e75f463c7f458f54aa4765d8a1375dcefc6c9b" localhost:8088/pin_status
+
+
+--==--==----==--==----==--==----==--==----==--==----==--==----==--==----==--==----==--==----==--==--
+PINS
+--==--==----==--==----==--==----==--==----==--==----==--==----==--==----==--==----==--==----==--==--
+Available:
+4
+5
+6
+17
+23
+25
+27
+
+Taken by 3G:
+12
+13
+16
+18
+22
+24
+26
