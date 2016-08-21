@@ -11,10 +11,10 @@ class Camera(object):
     last_access = 0  # time of last client access to the camera
 
     def initialize(self):
-        if Camera.thread is None:
+        if self.thread is None:
             # start background frame thread
-            Camera.thread = threading.Thread(target=self._thread)
-            Camera.thread.start()
+            self.thread = threading.Thread(target=self._thread)
+            self.thread.start()
 
             # wait until frames start to be available
             while self.frame is None:
