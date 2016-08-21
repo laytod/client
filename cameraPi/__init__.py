@@ -101,6 +101,7 @@ def gen(camera):
             pass
 
 from camera import Camera
+app.camera = Camera()
 
 
 @app.route('/test_feed')

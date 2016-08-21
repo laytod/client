@@ -1,28 +1,29 @@
 from flask import jsonify
 
 from base import BaseView
-from cameraPi import task_manager
+from cameraPi import task_manager, app
 
 
 class CamView(BaseView):
     def status(self):
-        task_status = task_manager.get_info()
-        cam_state = False
-        mjpg_state = False
+        # task_status = task_manager.get_info()
+        # cam_state = False
+        # mjpg_state = False
 
-        for task in task_status:
-            name = task['name']
-            if name == 'cam':
-                cam_state = task['statename'] == 'RUNNING'
-            elif name == 'mjpg':
-                mjpg_state = task['statename'] == 'RUNNING'
+        # for task in task_status:
+        #     name = task['name']
+        #     if name == 'cam':
+        #         cam_state = task['statename'] == 'RUNNING'
+        #     elif name == 'mjpg':
+        #         mjpg_state = task['statename'] == 'RUNNING'
 
-        results = {
-            'type': 'cam',
-            'state': cam_state and mjpg_state,
-            'data': {}
-        }
-        return jsonify(results=results)
+        # results = {
+        #     'type': 'cam',
+        #     'state': cam_state and mjpg_state,
+        #     'data': {}
+        # }
+        # return jsonify(results=results)
+        return app.camera.get_frame()
 
     def toggle(self):
         task_status = task_manager.get_info()
