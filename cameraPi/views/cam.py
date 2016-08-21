@@ -1,4 +1,4 @@
-from flask import jsonify
+from flask import jsonify, send_file
 
 from base import BaseView
 from cameraPi import task_manager, app
@@ -23,7 +23,8 @@ class CamView(BaseView):
         #     'data': {}
         # }
         # return jsonify(results=results)
-        return app.camera.get_frame()
+        frame = app.camera.get_frame()
+        return send_file(frame, mimetype='image/jpg')
 
     def toggle(self):
         task_status = task_manager.get_info()
