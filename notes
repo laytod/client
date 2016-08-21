@@ -11,3 +11,12 @@ SSH TUNNEL
 #    the ssh tunnel
 #
 autossh -M 20000 -f -N camserv -R 8080:localhost:8080 -R 8022:localhost:22 -R 8088:localhost:80
+
+
+---------------------------------------------------
+CURL
+---------------------------------------------------
+from hashlib import sha1
+sha1('<api-key>').hexdigest()
+
+curl --header "api-key: 42e75f463c7f458f54aa4765d8a1375dcefc6c9b" localhost:8088/pin_status

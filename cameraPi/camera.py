@@ -62,13 +62,14 @@ class Camera(object):
             # 10 seconds after the last call to get_frame, disable the camera.
             # While the camera is enabled, take 1 picture per second.
             while time.time() - cls.last_access < 10:
-                camera.capture('{path}/tmp.jpg'.format(path=path))
+                camera.capture('{path}tmp.jpg'.format(path=path))
                 subprocess.call(cmd, shell=True)
-                time.sleep(1)
 
                 # save timestamped frame to the class
-                with open('{path}/image.jpg'.format(path=path), 'rb') as img:
+                with open('{path}image.jpg'.format(path=path), 'rb') as img:
                     cls.frame = io.BytesIO(img.read())
+
+                time.sleep(1)
 
         cls.thread = None
 
