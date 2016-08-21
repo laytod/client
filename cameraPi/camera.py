@@ -51,7 +51,7 @@ class Camera(object):
 
                 # save timestamped frame to the class
                 with open('{path}/image.jpg'.format(path=path), 'rb') as img:
-                    cls.frame = img.read()
+                    cls.frame = io.BytesIO(img.read())
 
                 time.sleep(1)
                 pass
