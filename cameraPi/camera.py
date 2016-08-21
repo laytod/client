@@ -36,9 +36,9 @@ class Camera(object):
         logger.info('Getting frame from camera...')
         cls.last_access = time.time()
         cls.initialize()
+        cls.mutex.acquire()
 
         try:
-            cls.mutex.acquire()
             cls.frame_buffer.seek(0)
             return cls.frame_buffer.read()
         finally:
