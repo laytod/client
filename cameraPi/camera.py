@@ -50,7 +50,7 @@ class Camera(object):
                 subprocess.call(cmd, shell=True)
 
                 # save timestamped frame to the class
-                with open('{path}/image.jpg', 'rb') as img:
+                with open('{path}/image.jpg'.format(path=path), 'rb') as img:
                     cls.frame = img.read()
 
                 time.sleep(1)
