@@ -26,6 +26,8 @@ class Camera(object):
             # wait until frames start to be available
             while cls.frame is None:
                 time.sleep(0)
+        else:
+            logger.info('thread already init-ed')
 
     @classmethod
     def get_frame(cls):
