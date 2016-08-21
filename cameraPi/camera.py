@@ -39,10 +39,20 @@ class Camera(object):
             time.sleep(2)
 
             path = '/run/shm/'
+
+            # command to add timestamp banner onto pictures
             cmd = """convert -pointsize 20 -fill '#0008' -draw "rectangle 0,450 720,480" -fill white -draw "text 430,470 '$(date)'" {path}tmp.jpg {path}image.jpg""".format(path=path)
+
+            # 10 seconds after the last call to get_frame, disable the camera.
+            # While the camera is enabled, take 1 picture per second.
             while time.time() - cls.last_access < 10:
                 camera.capture('{path}/tmp.jpg'.format(path=path))
                 subprocess.call(cmd, shell=True)
+
+                # save timestamped frame to the class
+                with open('{path}/image.jpg', 'rb') as img:
+                    cls.frame = img.read()
+
                 time.sleep(1)
                 pass
 
