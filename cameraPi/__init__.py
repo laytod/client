@@ -77,12 +77,12 @@ for i in routes:
 print '-------'
 
 
-@app.after_request
-def print_response(response):
-    print response.data
-    return response
+# @app.after_request
+# def print_response(response):
+#     print response.data
+#     return response
 
-import time
+# import time
 
 
 def gen(camera):
