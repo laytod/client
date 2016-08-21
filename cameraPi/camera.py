@@ -48,13 +48,11 @@ class Camera(object):
             while time.time() - cls.last_access < 10:
                 camera.capture('{path}/tmp.jpg'.format(path=path))
                 subprocess.call(cmd, shell=True)
+                time.sleep(1)
 
                 # save timestamped frame to the class
                 with open('{path}/image.jpg'.format(path=path), 'rb') as img:
                     cls.frame = io.BytesIO(img.read())
-
-                time.sleep(1)
-                pass
 
         cls.thread = None
 
