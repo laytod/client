@@ -1,18 +1,20 @@
 import time
-import io
 import logging
-import threading
 import picamera
 import subprocess
+from io import BytesIO
+from threading import Thread, Lock
 
 
 logger = logging.getLogger(__name__)
 
 
 class Camera(object):
-    thread = None   # background thread that reads frames from camera
-    frame = None    # current frame is stored here by background thread
-    last_access = 0 # time of last client access to the camera
+    thread = None               # background thread that reads frames from camera
+    frame_buffer = BytesIO()   # current frame is stored here by background thread
+    frame_ready = False
+    last_access = 0             # time of last client access to the camera
+    mutex = Lock()
 
     @classmethod
     def initialize(cls):
@@ -20,21 +22,39 @@ class Camera(object):
             logger.info('Initializing camera thread.')
 
             # start background frame thread
-            cls.thread = threading.Thread(target=cls._thread)
+            cls.thread = Thread(target=cls._thread)
             cls.thread.start()
 
             # wait until frames start to be available
-            while cls.frame is None:
+            while not cls.frame_ready:
                 time.sleep(0)
         else:
             logger.info('thread already init-ed.  just return the frame')
 
     @classmethod
     def get_frame(cls):
+        cls.mutex.acquire()
         logger.info('Getting frame from camera...')
-        cls.last_access = time.time()
-        cls.initialize()
-        return cls.frame
+
+        try:
+            cls.last_access = time.time()
+            cls.initialize()
+            cls.frame_buffer.seek(0)
+            return cls.frame_buffer.read()
+        finally:
+            cls.mutex.release()
+
+    @classmethod
+    def _set_frame(cls, frame_data):
+        cls.mutex.acquire()
+
+        try:
+            logger.info('Writing to frame')
+            cls.frame_buffer.truncate(0)
+            cls.frame_buffer.seek(0)
+            cls.frame_buffer.write(frame_data)
+        finally:
+            cls.mutex.release()
 
     @classmethod
     def _thread(cls):
@@ -80,11 +100,13 @@ class Camera(object):
                 with open('{path}image.jpg'.format(path=path), 'rb') as img:
                     image_contents = img.read()
 
-                cls.frame = io.BytesIO(image_contents)
+                cls._set_frame(image_contents)
+                cls.frame_ready = True
 
                 time.sleep(1)
 
         cls.thread = None
+        cls.frame_ready = False
 
     # @classmethod
     # def _thread(cls):
