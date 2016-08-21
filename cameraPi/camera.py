@@ -27,7 +27,7 @@ class Camera(object):
             while cls.frame is None:
                 time.sleep(0)
         else:
-            logger.info('thread already init-ed')
+            logger.info('thread already init-ed.  just return the frame')
 
     @classmethod
     def get_frame(cls):
@@ -78,7 +78,9 @@ class Camera(object):
 
                 # save timestamped frame to the class
                 with open('{path}image.jpg'.format(path=path), 'rb') as img:
-                    cls.frame = io.BytesIO(img.read())
+                    image_contents = img.read()
+
+                cls.frame = io.BytesIO(image_contents)
 
                 time.sleep(1)
 
