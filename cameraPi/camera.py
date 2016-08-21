@@ -27,9 +27,12 @@ class Camera(object):
 
     @classmethod
     def _thread(cls):
+        res_width = 320
+        res_height = 240
+
         with picamera.PiCamera() as camera:
             # camera setup
-            camera.resolution = (320, 240)
+            camera.resolution = (res_width, res_height)
             camera.hflip = True
             camera.vflip = True
 
@@ -41,7 +44,13 @@ class Camera(object):
             path = '/run/shm/'
 
             # command to add timestamp banner onto pictures
-            cmd = """convert -pointsize 20 -fill '#0008' -draw "rectangle 0,450 720,480" -fill white -draw "text 430,470 '$(date)'" {path}tmp.jpg {path}image.jpg""".format(path=path)
+            cmd = """convert -pointsize 20 -fill '#0008' -draw "rectangle 0,{banner_y} {res_width},{res_height}" -fill white -draw "text 40,{banner_text_x} '$(date)'" {path}tmp.jpg {path}image.jpg""".format(
+                path=path,
+                banner_text_x=res_width - 90,
+                banner_y=res_height - 40,
+                res_width=res_width,
+                res_height=res_height,
+            )
 
             # 10 seconds after the last call to get_frame, disable the camera.
             # While the camera is enabled, take 1 picture per second.
