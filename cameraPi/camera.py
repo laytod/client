@@ -1,8 +1,8 @@
 import time
 import logging
-import picamera
 import subprocess
 from io import BytesIO
+from picamera import PiCamera
 from threading import Thread, Lock
 
 
@@ -11,16 +11,19 @@ logger = logging.getLogger(__name__)
 
 class Camera(object):
     thread = None               # background thread that reads frames from camera
-    frame_buffer = BytesIO()   # current frame is stored here by background thread
-    frame_ready = False
+    frame_ready = False         # flag to signify if a current frame is in the buffer
     last_access = 0             # time of last client access to the camera
-    mutex = Lock()
+
+    frame_buffer = BytesIO()    # current frame is stored here by background thread
+    mutex = Lock()              # mutex for the frame_buffer
 
     @classmethod
     def initialize(cls):
+        """ Initialize a new camera thread and wait for images to be written to
+        the frame buffer.  If a camera thread is already active, return.
+        """
         if cls.thread is None:
-            logger.info('Initializing camera thread.')
-
+            logger.info('Initializing camera thread')
             # start background frame thread
             cls.thread = Thread(target=cls._thread)
             cls.thread.start()
@@ -28,17 +31,18 @@ class Camera(object):
             # wait until frames start to be available
             while not cls.frame_ready:
                 time.sleep(0)
-        else:
-            logger.info('thread already init-ed.  just return the frame')
 
     @classmethod
     def get_frame(cls):
-        logger.info('Getting frame from camera...')
+        """First make sure that the camera is running and has taken a photo.
+        Then aquire the mutex to read the buffer and return it's contents.
+        """
         cls.last_access = time.time()
         cls.initialize()
         cls.mutex.acquire()
 
         try:
+            logger.info('Retrieving frame from buffer')
             cls.frame_buffer.seek(0)
             return cls.frame_buffer.read()
         finally:
@@ -46,10 +50,11 @@ class Camera(object):
 
     @classmethod
     def _set_frame(cls, frame_data):
+        """ Aquire the mutex for the buffer and then write binary data to it.
+        """
         cls.mutex.acquire()
 
         try:
-            logger.info('Writing to frame')
             cls.frame_buffer.truncate(0)
             cls.frame_buffer.seek(0)
             cls.frame_buffer.write(frame_data)
@@ -67,7 +72,7 @@ class Camera(object):
         # res_width = 1024
         # res_height = 768
 
-        with picamera.PiCamera() as camera:
+        with PiCamera() as camera:
             # camera setup
             camera.resolution = (res_width, res_height)
             camera.hflip = True
@@ -91,52 +96,22 @@ class Camera(object):
             )
 
             # 10 seconds after the last call to get_frame, disable the camera.
-            # While the camera is enabled, take 1 picture per second.
             while time.time() - cls.last_access < 10:
+                # take a picture and add the timestamp banner
                 camera.capture('{path}tmp.jpg'.format(path=path))
                 subprocess.call(cmd, shell=True)
 
-                # save timestamped frame to the class
+                # read the new frame's contents from disk
                 with open('{path}image.jpg'.format(path=path), 'rb') as img:
                     image_contents = img.read()
 
+                # write frame to the buffer
                 cls._set_frame(image_contents)
                 cls.frame_ready = True
 
+                # only take 1 picture per second
                 time.sleep(1)
 
+        # shutting down the thread...
         cls.thread = None
         cls.frame_ready = False
-
-    # @classmethod
-    # def _thread(cls):
-    #     with picamera.PiCamera() as camera:
-    #         # camera setup
-    #         camera.resolution = (320, 240)
-    #         camera.hflip = True
-    #         camera.vflip = True
-
-    #         # let camera warm up
-    #         camera.start_preview()
-    #         print 'warming up...'
-    #         time.sleep(2)
-
-    #         print 'starting stream.'
-    #         stream = io.BytesIO()
-    #         for _ in camera.capture_continuous(stream, 'jpeg', use_video_port=True):
-    #             # store frame
-    #             stream.seek(0)
-    #             print 'saving frame'
-    #             cls.frame = stream.read()
-
-    #             # reset stream for next frame
-    #             stream.seek(0)
-    #             stream.truncate()
-
-    #             time.sleep(4)
-
-    #             # if there hasn't been any clients asking for frames in
-    #             # the last 10 seconds stop the thread
-    #             if time.time() - cls.last_access > 10:
-    #                 break
-    #     cls.thread = None
